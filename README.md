@@ -1,9 +1,7 @@
 # rust-db
 A simple key-value pair based database written in rust. The database uses a custom binary protocol for operations.
 
-## Custom Key-Value Database Protocol
-
-This document outlines the binary protocol used for communication with the key-value database. The protocol supports versioning to ensure backward compatibility and extendability.
+# About the protocol
 
 ## General Structure
 
