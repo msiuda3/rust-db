@@ -1,6 +1,8 @@
 use byteorder::{ByteOrder, BigEndian};
 use std::io::{self, Read, Write};
-use std::net::{TcpListener, TcpStream};
+use std::net::TcpListener;
+use tokio::net::TcpListener;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 mod storage;
 
@@ -11,19 +13,22 @@ const OPERATION_GET_RESPONSE: u8 = 0x81;
 
 fn main() -> io::Result<()> {
     // Start the TCP listener on localhost and port 7878
-    let listener = TcpListener::bind("127.0.0.1:7878")?;
+    let listener = TcpListener::bind("127.0.0.1:7878").await?;
     println!("Server is listening on port 7878...");
 
-    for stream in listener.incoming() {
-        match stream {
-            Ok(mut stream) => {
-                handle_client(&mut stream)?;
+    loop{
+
+        let (mut stream, addr) = listener.accept().await?;
+        println!("New connection from {:?}", addr);
+
+        tokio::spawn(async move{
+            if let Err(e) = handle_client(&mut stream).await {
+                eprintln!("Error occured in connection from: {:?}", e);
             }
-            Err(e) => {
-                eprintln!("Failed to accept a connection: {}", e);
-            }
-        }
+        })
+
     }
+
 
     Ok(())
 }
