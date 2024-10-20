@@ -15,9 +15,7 @@ fn main() -> io::Result<()> {
     // Start the TCP listener on localhost and port 7878
     let listener = TcpListener::bind("127.0.0.1:7878").await?;
     println!("Server is listening on port 7878...");
-
     loop{
-
         let (mut stream, addr) = listener.accept().await?;
         println!("New connection from {:?}", addr);
 
@@ -26,16 +24,13 @@ fn main() -> io::Result<()> {
                 eprintln!("Error occured in connection from: {:?}", e);
             }
         })
-
     }
-
-
     Ok(())
 }
 
 fn handle_client(stream: &mut TcpStream) -> io::Result<()> {
     // Buffer to read the incoming message
-    let mut buffer = vec![0; 256]; // Adjust size as needed
+    let mut buffer: Vec<u8> = vec![0; 256]; // Adjust size as needed
     let bytes_read = stream.read(&mut buffer)?;
 
     // Check if we have enough bytes for the expected protocol format
