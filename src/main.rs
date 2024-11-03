@@ -5,6 +5,7 @@ use tokio::net::TcpListener;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 mod storage;
+mod reader;
 
 const VERSION: u8 = 0x01;
 const OPERATION_GET: u8 = 0x01;
@@ -76,6 +77,11 @@ fn handle_client(stream: &mut TcpStream) -> io::Result<()> {
     }
     println!("ENDING CONNECTION");
     Ok(())
+}
+
+fn handle_message(stream: &mut TcpStream) -> io::Result{
+    let result = reader::read(stream);
+    
 }
 
 

@@ -12,16 +12,16 @@ struct PutMessage{
     value: String
 }
 
-enum Operation {
+pub enum Operation {
     Get(GetMessage),
     Put(PutMessage)
 }
 
-enum MessageError{
+pub enum MessageError{
     InvalidOperation
 }
 
-fn read(stream: TcpStream) -> Result<Operation, MessageError> {
+pub fn read(stream: TcpStream) -> Result<Operation, MessageError> {
     let mut buffer: Vec<u8> = vec![0; 256]; 
     let bytes_read = stream.read(&mut buffer).await?;
     let version: u8 = buffer[0];
@@ -53,5 +53,5 @@ fn handle_put(buffer: Vec<u8>) -> Operation::Put {
 }
 
 fn string_from_bytes(value: &[u8]) -> String{
-
+    let mut value = storage::get(&String::from_utf8_lossy(key));
 }
