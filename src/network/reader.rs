@@ -53,5 +53,5 @@ fn handle_put(buffer: Vec<u8>) -> Operation::Put {
 }
 
 fn string_from_bytes(value: &[u8]) -> String{
-    let mut value = storage::get(&String::from_utf8_lossy(key));
+    return String::from_utf8_lossy(value);
 }

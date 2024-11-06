@@ -81,7 +81,13 @@ fn handle_client(stream: &mut TcpStream) -> io::Result<()> {
 
 fn handle_message(stream: &mut TcpStream) -> io::Result{
     let result = reader::read(stream);
-    
+    match result {
+
+    }
+}
+
+fn handle_get(getMessage: GetMessage){
+
 }
 
 
