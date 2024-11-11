@@ -1,11 +1,12 @@
 use byteorder::{ByteOrder, BigEndian};
+use network::reader::Operation;
 use std::io::{self, Read, Write};
-use std::net::TcpListener;
-use tokio::net::TcpListener;
+use std::net::{TcpListener, TcpStream};
+use tokio::net::{TcpListener, TcpStream};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 mod storage;
-mod reader;
+mod network;
 
 const VERSION: u8 = 0x01;
 const OPERATION_GET: u8 = 0x01;
@@ -80,13 +81,28 @@ fn handle_client(stream: &mut TcpStream) -> io::Result<()> {
 }
 
 fn handle_message(stream: &mut TcpStream) -> io::Result{
-    let result = reader::read(stream);
+    let result: Result<network::reader::Operation, network::reader::MessageError> = network::reader::read(stream);
     match result {
-
+        network::reader::Operation(operation) => {
+            match operation {
+                Operation::Get(get_message) => {
+                    println!("Handling GET operation");
+                    handle_get(get_message, stream);
+                }
+                Operation::Put(put_message: PutMessage) => {
+                    println!("Handling PUT operation");
+                    handle_put(put_message, stream);
+                }
+            }
+        }
     }
 }
 
-fn handle_get(getMessage: GetMessage){
+fn handle_get(getMessage: GetMessage, stream: &mut TcpStream){
+    let mut value = storage::get(getMessage.key);
+}
+
+fn handle_put(put_message: PutMessage, stream: &mut TcpStream){
 
 }
 
