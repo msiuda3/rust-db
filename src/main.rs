@@ -31,22 +31,18 @@ fn main() -> io::Result<()> {
 }
 
 fn handle_client(stream: &mut TcpStream) -> io::Result<()> {
-    // Buffer to read the incoming message
-    let mut buffer: Vec<u8> = vec![0; 256]; // Adjust size as needed
+    let mut buffer: Vec<u8> = vec![0; 256]; 
     let bytes_read = stream.read(&mut buffer)?;
 
-    // Check if we have enough bytes for the expected protocol format
     if bytes_read < 4 {
         eprintln!("Received message is too short.");
         return Ok(());
     }
 
-    // Parse the incoming message
     let version: u8 = buffer[0];
     let operation_type: u8 = buffer[1];
     let key_length: usize = buffer[2] as usize;
 
-    // Validate the version
     if version != VERSION {
         eprintln!("Invalid version or operation type.");
         return Ok(());
@@ -89,7 +85,7 @@ fn handle_message(stream: &mut TcpStream) -> io::Result{
                     println!("Handling GET operation");
                     handle_get(get_message, stream);
                 }
-                Operation::Put(put_message: PutMessage) => {
+                Operation::Put(put_message) => {
                     println!("Handling PUT operation");
                     handle_put(put_message, stream);
                 }
@@ -110,17 +106,14 @@ fn handle_put(put_message: PutMessage, stream: &mut TcpStream){
 fn create_response(found: bool, value: &str) -> Vec<u8> {
     let mut response = vec![VERSION];
 
-    // Operation type for response
     response.push(OPERATION_GET_RESPONSE);
-    // Status: 0x00 for found, 0x01 for not found
     response.push(if found { 0x00 } else { 0x01 });
 
-    // Add value length and value
     if found {
         response.push(value.len() as u8);
         response.extend_from_slice(value.as_bytes());
     } else {
-        response.push(0x00); // No value
+        response.push(0x00); 
     }
 
     response
