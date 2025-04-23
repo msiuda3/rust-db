@@ -14,8 +14,7 @@ const OPERATION_PUT: u8 = 0x02;
 const OPERATION_GET_RESPONSE: u8 = 0x81;
 
 fn main() -> io::Result<()> {
-    // Start the TCP listener on localhost and port 7878
-    let listener = TcpListener::bind("127.0.0.1:7878").await?;
+    let listener: <<Result<TcpListener, io::Error> as IntoFuture>::Output as Try>::Output = TcpListener::bind("127.0.0.1:7878").await?;
     println!("Server is listening on port 7878...");
     loop{
         let (mut stream, addr) = listener.accept().await?;
