@@ -1,7 +1,6 @@
 use byteorder::{ByteOrder, BigEndian};
 use network::reader::Operation;
 use std::io::{self, Read, Write};
-use std::net::{TcpListener, TcpStream};
 use tokio::net::{TcpListener, TcpStream};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
@@ -94,7 +93,9 @@ fn handle_message(stream: &mut TcpStream) -> io::Result{
 }
 
 fn handle_get(getMessage: GetMessage, stream: &mut TcpStream){
-    let mut value = storage::get(getMessage.key);
+    let mut value: Option<String> = storage::get(getMessage.key);
+    println!("Received GET request for key: {}, value: {}", getMessage.key, value);
+    network::writer::write_get_answer(stream, found, value);
 }
 
 fn handle_put(put_message: PutMessage, stream: &mut TcpStream){
