@@ -1,3 +1,5 @@
+use tokio::net::TcpStream;
+
 const VERSION: u8 = 0x01;
 const OPERATION_GET: u8 = 0x01;
 const OPERATION_PUT: u8 = 0x02;
