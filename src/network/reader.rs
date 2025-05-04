@@ -21,7 +21,7 @@ pub enum MessageError{
     InvalidOperation
 }
 
-pub fn read(stream: TcpStream) -> Result<Operation, MessageError> {
+pub fn read(stream: &TcpStream) -> Result<Operation, MessageError> {
     let mut buffer: Vec<u8> = vec![0; 256]; 
     let bytes_read = stream.read(&mut buffer).await?;
     let version: u8 = buffer[0];
