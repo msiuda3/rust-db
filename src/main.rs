@@ -1,5 +1,5 @@
 use byteorder::{ByteOrder, BigEndian};
-use network::reader::Operation;
+use network::reader::{GetMessage, Operation, PutMessage};
 use std::io::{self, Read, Write};
 use tokio::net::{TcpListener, TcpStream};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -77,29 +77,31 @@ fn handle_client(stream: &mut TcpStream) -> io::Result<()> {
 fn handle_message(stream: &mut TcpStream) -> io::Result{
     let result: Result<network::reader::Operation, network::reader::MessageError> = network::reader::read(stream);
     match result {
-        network::reader::Operation(operation) => {
-            match operation {
-                Operation::Get(get_message) => {
-                    println!("Handling GET operation");
-                    handle_get(get_message, stream);
-                }
-                Operation::Put(put_message) => {
-                    println!("Handling PUT operation");
-                    handle_put(put_message, stream);
-                }
-            }
-        }
+        Ok(network::reader::Operation::Get(get_message)) => {
+                        println!("Handling GET operation");
+                        handle_get(get_message, stream);
+                    }
+        Ok(network::reader::Operation::Put(put_message)) => {
+                        println!("Handling PUT operation");
+                        handle_put(put_message, stream);
+                    }
+        Err(_) => todo!(), //TODO handle case when no matchng operation was found
     }
+    Ok(());
 }
 
 fn handle_get(getMessage: GetMessage, stream: &mut TcpStream){
-    let mut value: Option<String> = storage::get(getMessage.key);
+    let mut value: Option<String> = storage::get(&getMessage.key);
     println!("Received GET request for key: {}, value: {}", getMessage.key, value);
-    network::writer::write_get_answer(stream, found, value);
+    network::writer::write_get_answer(stream, true, &value.get_or_insert("".to_string()));
+    println!("RETRIEVED GET SUCCESFULLY");
 }
 
 fn handle_put(put_message: PutMessage, stream: &mut TcpStream){
-
+    let mut value: Option<String> = storage::get(&getMessage.key);
+    println!("Received GET request for key: {}, value: {}", getMessage.key, value);
+    network::writer::write_get_answer(stream, true, &value.get_or_insert("".to_string()));
+    println!("RETRIEVED GET SUCCESFULLY");
 }
 
 

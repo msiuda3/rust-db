@@ -6,12 +6,12 @@ const OPERATION_PUT: u8 = 0x02;
 const OPERATION_GET_RESPONSE: u8 = 0x81;
 
 pub struct GetMessage{
-    key: String,
+    pub key: String,
 }
 
 pub struct PutMessage{
-    key: String,
-    value: String
+    pub key: String,
+    pub value: String
 }
 
 pub enum Operation {
