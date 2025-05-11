@@ -47,33 +47,17 @@ async fn handle_message(stream: &mut TcpStream) -> io::Result<()>{
     Ok(())
 }
 
-fn handle_get(getMessage: GetMessage, stream: &mut TcpStream){
-    let mut value: Option<String> = storage::get(&getMessage.key);
-    println!("Received GET request for key: {}, value: {}", getMessage.key, value);
+fn handle_get(get_message: &GetMessage, stream: &mut TcpStream){
+    let mut value: Option<String> = storage::get(&get_message.key);
+    println!("Received GET request for key: {}, value: {}", get_message.key, value);
     network::writer::write_get_answer(stream, true, &value.get_or_insert("".to_string()));
-    println!("RETRIEVED GET SUCCESFULLY");
+    println!("RETRIEVED SUCCESFULLY");
 }
 
-fn handle_put(put_message: PutMessage, stream: &mut TcpStream){
-    let mut value: Option<String> = storage::get(&getMessage.key);
-    println!("Received GET request for key: {}, value: {}", getMessage.key, value);
-    network::writer::write_get_answer(stream, true, &value.get_or_insert("".to_string()));
-    println!("RETRIEVED GET SUCCESFULLY");
+fn handle_put(put_message: &PutMessage, stream: &mut TcpStream){
+    storage::save(&put_message.key, &put_message.value);
+    println!("Received PUT request for key: {}, value: {}", put_message.key, value);
+    network::writer::write_get_answer(stream, true, &put_message.value); //TODO write different response for PUT requests
+    println!("SAVED SCUCCESFULLY");
 }
 
-
-fn create_response(found: bool, value: &str) -> Vec<u8> {
-    let mut response = vec![VERSION];
-
-    response.push(OPERATION_GET_RESPONSE);
-    response.push(if found { 0x00 } else { 0x01 });
-
-    if found {
-        response.push(value.len() as u8);
-        response.extend_from_slice(value.as_bytes());
-    } else {
-        response.push(0x00); 
-    }
-
-    response
-}
