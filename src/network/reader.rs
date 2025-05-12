@@ -25,13 +25,13 @@ pub enum MessageError{
 
 pub async fn read(stream: &mut TcpStream) -> Result<Operation, MessageError> {
     let mut buffer: Vec<u8> = vec![0; 256]; 
-    let bytes_read = stream.read(&mut buffer).await;
+    stream.read(&mut buffer).await;
     let version: u8 = buffer[0];
     let operation: u8 = buffer[1];
 
     match operation {
-        OPERATION_GET => return Ok(handle_get(bytes_read)),
-        OPERATION_PUT => return Ok(handle_put(bytes_read)),
+        OPERATION_GET => return Ok(handle_get(buffer)),
+        OPERATION_PUT => return Ok(handle_put(buffer)),
         _ => return Err(MessageError::InvalidOperation)
     }
 
