@@ -32,15 +32,15 @@ async fn main() -> io::Result<()> {
 
 
 async fn handle_message(stream: &mut TcpStream) -> io::Result<()>{
-    let result: Result<network::reader::Operation, network::reader::MessageError> = network::reader::read(stream);
+    let result: Result<network::reader::Operation, network::reader::MessageError> = network::reader::read(stream).await;
     match result {
         Ok(network::reader::Operation::Get(get_message)) => {
                         println!("Handling GET operation");
-                        handle_get(get_message, stream);
+                        handle_get(&get_message, stream);
                     }
         Ok(network::reader::Operation::Put(put_message)) => {
                         println!("Handling PUT operation");
-                        handle_put(put_message, stream);
+                        handle_put(&put_message, stream);
                     }
         Err(_) => todo!(), //TODO handle case when no matchng operation was found
     }
