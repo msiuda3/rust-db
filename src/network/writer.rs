@@ -8,9 +8,9 @@ const STATUS_FOUND: u8 = 0x00;
 const STATUS_NOT_FOUND: u8 = 0x01;
 
 
-pub fn write_get_answer(stream: &mut TcpStream, found: bool, value: &str) {
+pub async fn write_get_answer(stream: &mut TcpStream, found: bool, value: &str) {
     let response = create_response(found, value);
-   stream.write_all(&response); 
+   stream.write_all(&response).await?;
 }
 
 
@@ -26,6 +26,5 @@ pub fn create_response(found: bool, value: &str) -> Vec<u8> {
     } else {
         response.push(0x00); 
     }
-
     response
 }
