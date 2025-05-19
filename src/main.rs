@@ -48,15 +48,15 @@ async fn handle_message(stream: &mut TcpStream) -> io::Result<()>{
 }
 
 fn handle_get(get_message: &GetMessage, stream: &mut TcpStream){
-    let mut value: Option<String> = storage::get(&get_message.key);
+    let mut value: String = storage::get(&get_message.key).unwrap();
     println!("Received GET request for key: {}, value: {}", get_message.key, value);
-    network::writer::write_get_answer(stream, true, &value.get_or_insert("".to_string()));
+    network::writer::write_get_answer(stream, true, &value);
     println!("RETRIEVED SUCCESFULLY");
 }
 
 fn handle_put(put_message: &PutMessage, stream: &mut TcpStream){
     storage::save(&put_message.key, &put_message.value);
-    println!("Received PUT request for key: {}, value: {}", put_message.key, value);
+    println!("Received PUT request for key: {}, value: {}", put_message.key, put_message.value);
     network::writer::write_get_answer(stream, true, &put_message.value); //TODO write different response for PUT requests
     println!("SAVED SCUCCESFULLY");
 }
