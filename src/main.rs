@@ -40,7 +40,7 @@ async fn handle_message(stream: &mut TcpStream) -> io::Result<()>{
                     }
         Ok(network::reader::Operation::Put(put_message)) => {
                         println!("Handling PUT operation");
-                        handle_put(&put_message, stream);
+                        handle_put(&put_message, stream).await;
                     }
         Err(_) => todo!(), //TODO handle case when no matchng operation was found
     }
@@ -54,10 +54,11 @@ fn handle_get(get_message: &GetMessage, stream: &mut TcpStream){
     println!("RETRIEVED SUCCESFULLY");
 }
 
-fn handle_put(put_message: &PutMessage, stream: &mut TcpStream){
+async fn handle_put(put_message: &PutMessage, stream: &mut TcpStream){
+    print!("test hnadle_p");
     storage::save(&put_message.key, &put_message.value);
     println!("Received PUT request for key: {}, value: {}", put_message.key, put_message.value);
-    network::writer::write_get_answer(stream, true, &put_message.value); //TODO write different response for PUT requests
+    network::writer::write_get_answer(stream, true, &put_message.value).await; //TODO write different response for PUT requests
     println!("SAVED SCUCCESFULLY");
 }
 

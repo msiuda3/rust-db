@@ -1,4 +1,4 @@
-use tokio::{io::AsyncWriteExt, net::TcpStream};
+use tokio::{io::{self, AsyncWriteExt}, net::TcpStream};
 
 const VERSION: u8 = 0x01;
 const OPERATION_GET: u8 = 0x01;
@@ -8,9 +8,11 @@ const STATUS_FOUND: u8 = 0x00;
 const STATUS_NOT_FOUND: u8 = 0x01;
 
 
-pub async fn write_get_answer(stream: &mut TcpStream, found: bool, value: &str) {
+pub async fn write_get_answer(stream: &mut TcpStream, found: bool, value: &str) -> io::Result<()> {
+    println!("TEST");
     let response = create_response(found, value);
-   stream.write_all(&response).await?;
+    stream.write_all(&response).await?;
+    Ok(())
 }
 
 
