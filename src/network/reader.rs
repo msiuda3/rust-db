@@ -38,18 +38,18 @@ pub async fn read(stream: &mut TcpStream) -> Result<Operation, MessageError> {
 }
 
 fn handle_get(buffer: Vec<u8>) -> Operation {
-    let key_length: usize = buffer[3] as usize;
+    let key_length: usize = buffer[2] as usize;
     let key_bytes: &[u8] = &buffer[3 .. key_length];
     return Operation::Get(GetMessage {key: string_from_bytes(key_bytes)});
 }
 fn handle_put(buffer: Vec<u8>) -> Operation {
-    let key_length: usize = buffer[3] as usize;
-    let key_bytes: &[u8] = &buffer[3 .. key_length];
+    let key_length: usize = buffer[2] as usize;
+    let key_bytes: &[u8] = &buffer[4 .. key_length];
     let key_str = string_from_bytes(key_bytes);
 
-    let value_length_position = 3 + key_length;
-    let value_length = buffer[value_length_position] as usize;
-    let value_bytes= &buffer[value_length_position + 1 .. value_length_position + 1 + value_length];
+    let value_position = 4 + key_length;
+    let value_length = buffer[3] as usize;
+    let value_bytes= &buffer[value_position .. value_position + value_length];
     let value_str = string_from_bytes(&value_bytes);
     return Operation::Put(PutMessage {key: key_str, value: value_str});
 }
