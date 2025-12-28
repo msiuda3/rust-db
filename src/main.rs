@@ -1,12 +1,12 @@
-use byteorder::{ByteOrder, BigEndian};
+use byteorder::{BigEndian, ByteOrder};
 use network::reader::{GetMessage, Operation, PutMessage};
-use std::io::{self, Read, Write};
-use tokio::net::{TcpListener, TcpStream};
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use std::future::IntoFuture;
+use std::io::{self, Read, Write};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::{TcpListener, TcpStream};
 
-mod storage;
 mod network;
+mod storage;
 
 const VERSION: u8 = 0x01;
 const OPERATION_GET: u8 = 0x01;
@@ -17,12 +17,12 @@ const OPERATION_GET_RESPONSE: u8 = 0x81;
 async fn main() -> io::Result<()> {
     let listener: TcpListener = TcpListener::bind("127.0.0.1:7878").await?;
     println!("Server is listening on port 7878...");
-    loop{
+    loop {
         let (mut stream, addr) = listener.accept().await?;
         println!("New connection from {:?}", addr);
 
-        tokio::spawn(async move{
-            if let Err(e) = handle_message(&mut stream).await {
+        tokio::spawn(async move {
+            if let Err(e) = handle_message(stream).await {
                 eprintln!("Error occured in connection from: {:?}", e);
             }
         });
@@ -30,35 +30,40 @@ async fn main() -> io::Result<()> {
     Ok(())
 }
 
-
-async fn handle_message(stream: &mut TcpStream) -> io::Result<()>{
-    let result: Result<network::reader::Operation, network::reader::MessageError> = network::reader::read(stream).await;
+async fn handle_message(mut stream: TcpStream) -> io::Result<()> {
+    let result: Result<network::reader::Operation, network::reader::MessageError> =
+        network::reader::read(&mut stream).await;
     match result {
         Ok(network::reader::Operation::Get(get_message)) => {
-                        println!("Handling GET operation");
-                        handle_get(&get_message, stream);
-                    }
+            println!("Handling GET operation");
+            handle_get(&get_message, stream);
+        }
         Ok(network::reader::Operation::Put(put_message)) => {
-                        println!("Handling PUT operation");
-                        handle_put(&put_message, stream).await;
-                    }
+            println!("Handling PUT operation");
+            handle_put(&put_message, stream).await;
+        }
         Err(_) => todo!(), //TODO handle case when no matchng operation was found
     }
     Ok(())
 }
 
-fn handle_get(get_message: &GetMessage, stream: &mut TcpStream){
+fn handle_get(get_message: &GetMessage, stream: TcpStream) {
     let mut value: String = storage::get(&get_message.key).unwrap();
-    println!("Received GET request for key: {}, value: {}", get_message.key, value);
+    println!(
+        "Received GET request for key: {}, value: {}",
+        get_message.key, value
+    );
     network::writer::write_get_answer(stream, true, &value);
     println!("RETRIEVED SUCCESFULLY");
 }
 
-async fn handle_put(put_message: &PutMessage, stream: &mut TcpStream){
+async fn handle_put(put_message: &PutMessage, stream: TcpStream) {
     print!("test hnadle_p");
     storage::save(&put_message.key, &put_message.value);
-    println!("Received PUT request for key: {}, value: {}", put_message.key, put_message.value);
+    println!(
+        "Received PUT request for key: {}, value: {}",
+        put_message.key, put_message.value
+    );
     network::writer::write_get_answer(stream, true, &put_message.value).await; //TODO write different response for PUT requests
     println!("SAVED SCUCCESFULLY");
 }
-
